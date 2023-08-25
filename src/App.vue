@@ -1,7 +1,6 @@
 <template>
   <div>
     <NavbarComponent />
-    <EditLinkComponent />
     <router-view />
   </div>
 </template>
