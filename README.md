@@ -3,12 +3,20 @@
 ## 💻 Project
 A small challenge to develop an application to shorten links.
 
+## Steps
+Download the repository
+```
+git clone https://github.com/raquelizek/shortLinkr-FrontEnd.git
+```
+
 ## Project setup
+Install the dependencies
 ```
 npm install
 ```
 
 ## Start project
+Start the project
 ```
 npm run serve
 ```
