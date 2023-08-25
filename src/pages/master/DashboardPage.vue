@@ -15,20 +15,30 @@
               </p>
             </div>
             <dl
-              class="grid grid-cols-1 gap-x-8 gap-y-16 text-center lg:grid-cols-4"
+              class="grid grid-cols-1 gap-x-8 gap-y-16 text-center lg:grid-cols-3"
             >
-              <div
-                v-for="stat in stats"
-                :key="stat.id"
-                class="mx-auto flex max-w-xs flex-col gap-y-4"
-              >
-                <dt class="text-1xl text-gray-600 mt-[-6px]">
-                  {{ stat.name }}
-                </dt>
+              <div class="mx-auto flex max-w-xs flex-col gap-y-4">
+                <dt class="text-1xl text-gray-600 mt-[-6px]">Total links</dt>
                 <dd
                   class="order-first text-2xl font-semibold tracking-tight text-gray-900 sm:text-1xl"
                 >
-                  {{ stat.value }}
+                  {{ access.countLinks ?? 0 }}
+                </dd>
+              </div>
+              <div class="mx-auto flex max-w-xs flex-col gap-y-4">
+                <dt class="text-1xl text-gray-600 mt-[-6px]">Total acessos</dt>
+                <dd
+                  class="order-first text-2xl font-semibold tracking-tight text-gray-900 sm:text-1xl"
+                >
+                  {{ access.countAccess ?? 0 }}
+                </dd>
+              </div>
+              <div class="mx-auto flex max-w-xs flex-col gap-y-4">
+                <dt class="text-1xl text-gray-600 mt-[-6px]">Total clicks</dt>
+                <dd
+                  class="order-first text-2xl font-semibold tracking-tight text-gray-900 sm:text-1xl"
+                >
+                  {{ access.countClicks ?? 0 }}
                 </dd>
               </div>
             </dl>
@@ -41,16 +51,6 @@
       <div class="flex flex-col mx-auto max-w-5xl py-6 sm:px-6 lg:px-8">
         <div class="mt-5 mb-5 flex lg:mt-0">
           <span class="hidden sm:block">
-            <button
-              type="button"
-              class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click="redirectToDash"
-            >
-              <i class="fa-solid fa-house -ml-0.5 mr-1.5 h-4 w-4"></i>
-              Início
-            </button>
-          </span>
-          <span class="sm:ml-3">
             <button
               type="button"
               class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -89,25 +89,24 @@
           </div>
         </div>
         <ul
-          role="list"
-          class="mt-5 divide-y divide-gray-100 border border-solid border-gray-200 rounded p-4 shadow-md overflow-y-auto"
+          class="mt-5 divide-y divide-gray-100 border border-solid border-gray-200 rounded p-4 shadow-md max-h-[600px] overflow-y-auto"
         >
           <li
-            v-for="person in people"
-            :key="person.email"
+            v-for="item in data"
+            :key="item.link"
             class="flex py-5 justify-between"
           >
             <div class="flex min-w-0 gap-x-4">
               <div class="min-w-0 flex-auto">
                 <p
-                  class="text-sm font-semibold leading-6 text-gray-900 text-left"
+                  class="text-sm font-semibold leading-6 text-gray-900 text-left truncate"
                 >
-                  {{ person.name }}
+                  {{ item.link }}
                 </p>
                 <p
                   class="mt-1 truncate text-xs leading-5 text-gray-500 text-left"
                 >
-                  {{ person.email }}
+                  {{ item.encurted_link }}
                 </p>
               </div>
             </div>
@@ -117,7 +116,7 @@
                 <button
                   type="button"
                   class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  @click="redirectToEdit"
+                  @click="redirectToEdit(item.id)"
                 >
                   <i
                     class="fa-solid fa-pen-to-square -ml-0.5 mr-1.5 h-4 w-4"
@@ -129,7 +128,21 @@
               <span class="sm:ml-3">
                 <button
                   type="button"
+                  class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  @click="redirectToUrl(item.identifier)"
+                >
+                  <i
+                    class="fa-solid fa-chevron-right -ml-0.5 mr-1.5 h-4 w-4"
+                  ></i>
+                  Acessar
+                </button>
+              </span>
+
+              <span class="sm:ml-3">
+                <button
+                  type="button"
                   class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                  @click="deleteItem(item.id)"
                 >
                   <i class="fa-solid fa-trash-can -ml-0.5 mr-1.5 h-4 w-4"></i>
 
@@ -147,53 +160,43 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-
+import { ref, onMounted } from 'vue'
+import { api } from '@/lib/api'
 const router = useRouter()
+
+const data = ref([])
+
+const access = ref({})
+
+onMounted(async () => {
+  const response = await api.get('/link/list')
+  data.value = response.data
+
+  const responseAccess = await api.get('/access')
+  access.value = responseAccess.data.data
+})
 
 const redirectToCreate = () => {
   router.push('/create')
 }
 
-const redirectToDash = () => {
-  router.push('/')
+const redirectToEdit = itemId => {
+  router.push(`/edit/${itemId}`)
 }
 
-const redirectToEdit = () => {
-  router.push('/edit')
+const redirectToUrl = identifier => {
+  router.push(`/visit/${identifier}`)
 }
 
-const stats = [
-  { id: 1, name: 'Links criados', value: '44 million' },
-  { id: 2, name: 'Assets under holding', value: '$119 trillion' },
-  { id: 3, name: 'New users annually', value: '46,000' },
-  { id: 4, name: 'New users annually', value: '46,000' }
-]
-
-const people = [
-  {
-    name: 'Leslie Alexander',
-    email: 'leslie.alexander@example.com'
-  },
-  {
-    name: 'Michael Foster',
-    email: 'michael.foster@example.com'
-  },
-  {
-    name: 'Dries Vincent',
-    email: 'dries.vincent@example.com'
-  },
-  {
-    name: 'Lindsay Walton',
-    email: 'lindsay.walton@example.com'
-  },
-  {
-    name: 'Courtney Henry',
-    email: 'courtney.henry@example.com'
-  },
-  {
-    name: 'Tom Cook',
-    email: 'tom.cook@example.com'
+const deleteItem = async itemId => {
+  try {
+    await api.delete(`/link/delete/${itemId}`)
+    const response = await api.get('/link/list')
+    data.value = response.data
+  } catch (error) {
+    console.error('Erro ao excluir o link:', error)
   }
-]
+}
 </script>
+
 <style></style>
