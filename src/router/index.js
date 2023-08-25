@@ -1,8 +1,9 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 import DashboardPage from '../pages/master/DashboardPage'
 import CreatePage from '../pages/forms/CreatePage'
 import EditPage from '../pages/forms/EditPage'
+import RedirectPage from '../pages/RedirectPage'
 
 const routes = [
   {
@@ -12,13 +13,18 @@ const routes = [
   },
   {
     name: 'EditPage',
-    path: '/edit',
+    path: '/edit/:id',
     component: EditPage
   },
   {
     name: 'CreatePage',
     path: '/create',
     component: CreatePage
+  },
+  {
+    name: 'RedirectPage',
+    path: '/visit/:identifier',
+    component: RedirectPage
   }
 ]
 
@@ -28,7 +34,7 @@ export default router
 
 function Router() {
   const router = new createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes
   })
   return router
